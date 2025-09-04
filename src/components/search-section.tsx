@@ -151,17 +151,6 @@ export function SearchSection() {
                   حدث خطأ غير متوقع في النظام
                 </p>
               )}
-              <p className="text-sm text-muted-foreground">
-                للتواصل والمساعدة: 
-                <a 
-                  href="https://wa.me/201559181558" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-green-600 hover:text-green-700 font-semibold ml-1"
-                >
-                  +201559181558
-                </a>
-              </p>
             </div>
           </CardContent>
         </Card>
@@ -182,17 +171,6 @@ export function SearchSection() {
                 <a 
                   href="https://wa.me/201559181558" 
                   target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-green-600 hover:text-green-700 font-semibold ml-1"
-                >
-                  واتساب +201559181558
-                </a>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Results */}
       {results && results.length > 0 && (
         <div className="space-y-6">
@@ -222,17 +200,6 @@ export function SearchSection() {
               </p>
               <p className="text-sm text-muted-foreground mt-2">
                 🎯 معايير النجاح: من 85 درجة فما فوق
-              </p>
-              <p className="text-xs text-muted-foreground mt-3">
-                للمساعدة أو الاستفسار أو إذا كنت غير راضٍ عن النتيجة: 
-                <a 
-                  href="https://wa.me/201559181558" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-green-600 hover:text-green-700 font-semibold ml-1"
-                >
-                  واتساب +201559181558
-                </a>
               </p>
             </div>
           </CardContent>
