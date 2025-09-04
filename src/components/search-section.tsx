@@ -14,11 +14,14 @@ interface Result {
   rank?: number | null
 }
 
+interface ResultWithRank extends Result {
+  calculatedRank?: number
+}
 export function SearchSection() {
   const [searchTerm, setSearchTerm] = useState("")
   const [shouldSearch, setShouldSearch] = useState(false)
   
-  const { data: results, isLoading, error } = useQuery({
+  const { data: results, isLoading, error } = useQuery<ResultWithRank[]>({
     queryKey: ['results', searchTerm, shouldSearch],
     queryFn: async () => {
       if (!searchTerm.trim() || !shouldSearch) return []
@@ -51,15 +54,55 @@ export function SearchSection() {
           .limit(1) // عرض نتيجة واحدة فقط
         
         if (altError) throw altError
-        return alternativeData as Result[]
+        
+        // حساب الترتيب للنتائج البديلة
+        if (alternativeData && alternativeData.length > 0) {
+          const resultWithRank = await calculateRankForResult(alternativeData[0])
+          return [resultWithRank]
+        }
+        return []
       }
       
       if (error) throw error
-      return data as Result[]
+      
+      // حساب الترتيب للنتيجة المعثور عليها
+      if (data && data.length > 0) {
+        const resultWithRank = await calculateRankForResult(data[0])
+        return [resultWithRank]
+      }
+      
+      return []
     },
     enabled: searchTerm.trim().split(' ').filter(word => word.length > 0).length >= 2 && shouldSearch
   })
 
+  // دالة لحساب الترتيب حسب الفئة
+  const calculateRankForResult = async (result: Result): Promise<ResultWithRank> => {
+    if (!result.category || !result.grade) {
+      return { ...result, calculatedRank: undefined }
+    }
+
+    // جلب جميع النتائج في نفس الفئة مرتبة حسب الدرجة تنازلياً
+    const { data: categoryResults, error } = await supabase
+      .from('results')
+      .select('grade, name')
+      .eq('category', result.category)
+      .not('grade', 'is', null)
+      .order('grade', { ascending: false })
+
+    if (error || !categoryResults) {
+      console.error('Error calculating rank:', error)
+      return { ...result, calculatedRank: undefined }
+    }
+
+    // العثور على ترتيب الطالب في القائمة
+    const rank = categoryResults.findIndex(r => r.name === result.name) + 1
+    
+    return {
+      ...result,
+      calculatedRank: rank > 0 ? rank : undefined
+    }
+  }
   const handleSearch = (term: string) => {
     setSearchTerm(term)
     setShouldSearch(true)
@@ -160,7 +203,7 @@ export function SearchSection() {
               name={result.name || "غير محدد"}
               grade={result.grade || 0}
               category={result.category}
-              rank={result.rank}
+              rank={result.calculatedRank || result.rank}
             />
           ))}
         </div>
